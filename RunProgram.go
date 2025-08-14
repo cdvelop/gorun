@@ -36,8 +36,8 @@ func (h *GoRun) RunProgram() error {
 	var once sync.Once
 	done := make(chan struct{})
 
-	go io.Copy(h.Writer, stderr)
-	go io.Copy(h.Writer, stdout)
+	go io.Copy(h.Logger, stderr)
+	go io.Copy(h.Logger, stdout)
 
 	go func() {
 		select {
@@ -53,9 +53,9 @@ func (h *GoRun) RunProgram() error {
 	go func() {
 		err := h.Cmd.Wait()
 		if err != nil {
-			fmt.Fprintf(h.Writer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
+			fmt.Fprintf(h.Logger, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
 		} else {
-			fmt.Fprintf(h.Writer, "App: %v closed successfully\n", h.ExecProgramPath)
+			fmt.Fprintf(h.Logger, "App: %v closed successfully\n", h.ExecProgramPath)
 		}
 		once.Do(func() { close(done) })
 	}()

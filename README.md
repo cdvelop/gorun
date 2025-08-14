@@ -28,7 +28,7 @@ func main() {
         ExecProgramPath: "your_program",
         RunArguments:    func() []string { return []string{"--flag"} },
         ExitChan:        make(chan bool),
-        Writer:          os.Stdout,
+        Logger:          os.Stdout,
     }
 
     runner := gorun.New(config)

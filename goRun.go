@@ -9,7 +9,7 @@ type GoRunConfig struct {
 	ExecProgramPath string // eg: "server/main.exe"
 	RunArguments    func() []string
 	ExitChan        chan bool
-	Writer          io.Writer
+	Logger          io.Writer
 }
 
 type GoRun struct {
