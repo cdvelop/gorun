@@ -108,7 +108,7 @@ func TestStopProgram_GracefulShutdown(t *testing.T) {
 	// Wait for it to process the signal
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 
 	// Check that the program completed (either gracefully or was terminated)
 	// The specific signal handling may vary by OS and implementation

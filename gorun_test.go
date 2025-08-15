@@ -110,7 +110,7 @@ func TestRunProgram_Success(t *testing.T) {
 	// Wait a bit and check output
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 	if !strings.Contains(output, "PROGRAM_STARTED") && !strings.Contains(output, "TICK") {
 		t.Errorf("Expected program output in logger, got: %s", output)
 	}
@@ -299,7 +299,7 @@ func TestRunArguments(t *testing.T) {
 	// Wait for program to finish (it should exit quickly)
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 	expectedArgs := "ARGS:" + strings.Join(testArgs, ",")
 
 	// Check if the arguments were passed correctly
@@ -345,7 +345,7 @@ func TestSignalHandling(t *testing.T) {
 	// Wait for it to finish
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 
 	// Check that it either received the signal and exited gracefully,
 	// or was terminated successfully

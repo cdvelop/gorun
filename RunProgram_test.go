@@ -101,7 +101,7 @@ func main() {
 	// Wait for output
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 	// Check if the program ran (arguments are passed correctly)
 	// Since the logger captures output, we should see either the expected args or program completion
 	if !strings.Contains(output, "ARGS:") && !strings.Contains(output, "closed successfully") {
@@ -292,7 +292,7 @@ func main() {
 	// Wait for program to complete
 	time.Sleep(200 * time.Millisecond)
 
-	output := buf.String()
+	output := gr.GetOutput()
 	// Check that the program ran and completed (either output or completion message)
 	if !strings.Contains(output, "QUICK_PROGRAM_EXECUTED") && !strings.Contains(output, "closed successfully") {
 		t.Errorf("Expected either program output or completion message. Got: %s", output)

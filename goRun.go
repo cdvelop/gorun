@@ -16,16 +16,31 @@ type GoRunConfig struct {
 
 type GoRun struct {
 	*GoRunConfig
-	Cmd       *exec.Cmd
-	isRunning bool
-	mutex     sync.RWMutex // Protect concurrent access to running state
+	Cmd        *exec.Cmd
+	isRunning  bool
+	mutex      sync.RWMutex // Protect concurrent access to running state
+	safeBuffer *SafeBuffer  // Thread-safe buffer for Logger
 }
 
 func New(c *GoRunConfig) *GoRun {
+	var buffer *SafeBuffer
+	if c.Logger != nil {
+		// Create SafeBuffer that forwards to the original logger
+		buffer = NewSafeBufferWithForward(c.Logger)
+	} else {
+		buffer = NewSafeBuffer()
+	}
+
 	return &GoRun{
 		GoRunConfig: c,
 		Cmd:         &exec.Cmd{},
 		isRunning:   false,
 		mutex:       sync.RWMutex{},
+		safeBuffer:  buffer,
 	}
+}
+
+// GetOutput returns the captured output in a thread-safe manner
+func (h *GoRun) GetOutput() string {
+	return h.safeBuffer.String()
 }

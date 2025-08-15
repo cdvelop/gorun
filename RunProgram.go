@@ -15,11 +15,11 @@ func (h *GoRun) RunProgram() error {
 	// Use cleanup if KillAllOnStop is enabled
 	if h.KillAllOnStop {
 		if err := h.stopProgramAndCleanupUnsafe(true); err != nil {
-			fmt.Fprintf(h.Logger, "Warning: Error stopping previous programs: %v\n", err)
+			fmt.Fprintf(h.safeBuffer, "Warning: Error stopping previous programs: %v\n", err)
 		}
 	} else {
 		if err := h.stopProgramUnsafe(); err != nil {
-			fmt.Fprintf(h.Logger, "Warning: Error stopping previous program: %v\n", err)
+			fmt.Fprintf(h.safeBuffer, "Warning: Error stopping previous program: %v\n", err)
 		}
 	}
 
@@ -45,13 +45,17 @@ func (h *GoRun) RunProgram() error {
 	if err != nil {
 		return err
 	}
+
 	h.isRunning = true
 
 	var once sync.Once
 	done := make(chan struct{})
 
-	go io.Copy(h.Logger, stderr)
-	go io.Copy(h.Logger, stdout)
+	// Create local references for goroutines to avoid race conditions
+	currentCmd := h.Cmd
+
+	go io.Copy(h.safeBuffer, stderr)
+	go io.Copy(h.safeBuffer, stdout)
 
 	go func() {
 		select {
@@ -65,15 +69,15 @@ func (h *GoRun) RunProgram() error {
 	}()
 
 	go func() {
-		err := h.Cmd.Wait()
+		err := currentCmd.Wait()
 		h.mutex.Lock()
 		h.isRunning = false
 		h.mutex.Unlock()
 
 		if err != nil {
-			fmt.Fprintf(h.Logger, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
+			fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
 		} else {
-			fmt.Fprintf(h.Logger, "App: %v closed successfully\n", h.ExecProgramPath)
+			fmt.Fprintf(h.safeBuffer, "App: %v closed successfully\n", h.ExecProgramPath)
 		}
 		once.Do(func() { close(done) })
 	}()
