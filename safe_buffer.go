@@ -23,10 +23,27 @@ func NewSafeBuffer() *SafeBuffer {
 
 // NewSafeBufferWithForward creates a new thread-safe buffer that forwards writes
 func NewSafeBufferWithForward(forward io.Writer) *SafeBuffer {
+	// Wrap the forward writer in a thread-safe wrapper so that
+	// writes forwarded from SafeBuffer don't race when the original
+	// writer is not safe for concurrent use (e.g., bytes.Buffer).
 	return &SafeBuffer{
 		buffer:    &bytes.Buffer{},
-		forwardTo: forward,
+		forwardTo: &forwardWriter{w: forward},
 	}
+}
+
+// forwardWriter serializes writes to an underlying writer.
+// This protects non-thread-safe writers (like bytes.Buffer)
+// when SafeBuffer forwards bytes to them from multiple goroutines.
+type forwardWriter struct {
+	w  io.Writer
+	mu sync.Mutex
+}
+
+func (fw *forwardWriter) Write(p []byte) (int, error) {
+	fw.mu.Lock()
+	defer fw.mu.Unlock()
+	return fw.w.Write(p)
 }
 
 // Write writes data to the buffer and optionally forwards to another writer
