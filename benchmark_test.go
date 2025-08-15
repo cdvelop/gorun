@@ -19,7 +19,7 @@ func BenchmarkRunStopProgram(b *testing.B) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -57,7 +57,7 @@ func BenchmarkIsRunning(b *testing.B) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -84,7 +84,7 @@ func BenchmarkNew(b *testing.B) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,

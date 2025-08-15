@@ -16,7 +16,7 @@ func TestStopProgram_Basic(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -53,7 +53,7 @@ func TestStopProgram_WhenNotRunning(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -81,7 +81,7 @@ func TestStopProgram_GracefulShutdown(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -129,7 +129,7 @@ func TestStopProgram_ForcedTermination(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -175,7 +175,7 @@ func TestStopProgram_MultipleCalls(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -224,7 +224,7 @@ func TestStopProgram_ConcurrentCalls(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,

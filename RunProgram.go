@@ -32,6 +32,11 @@ func (h *GoRun) RunProgram() error {
 	h.Cmd = exec.Command(h.ExecProgramPath, runArgs...)
 	h.hasWaited = false // Reset wait flag for new process
 
+	// Set working directory if specified
+	if h.WorkingDir != "" {
+		h.Cmd.Dir = h.WorkingDir
+	}
+
 	stderr, err := h.Cmd.StderrPipe()
 	if err != nil {
 		return err

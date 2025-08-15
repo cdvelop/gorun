@@ -14,7 +14,7 @@ func TestIsRunning_InitialState(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -36,7 +36,7 @@ func TestIsRunning_AfterStart(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -68,7 +68,7 @@ func TestIsRunning_AfterStop(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -134,7 +134,7 @@ func main() {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,

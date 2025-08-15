@@ -6,16 +6,17 @@ import (
 	"sync"
 )
 
-type GoRunConfig struct {
+type Config struct {
 	ExecProgramPath string // eg: "server/main.exe"
 	RunArguments    func() []string
 	ExitChan        chan bool
 	Logger          io.Writer
-	KillAllOnStop   bool // If true, kills all instances of the executable when stopping
+	KillAllOnStop   bool   // If true, kills all instances of the executable when stopping
+	WorkingDir      string // Working directory for the process (optional)
 }
 
 type GoRun struct {
-	*GoRunConfig
+	*Config
 	Cmd        *exec.Cmd
 	isRunning  bool
 	hasWaited  bool         // Track if Wait() has been called
@@ -23,7 +24,7 @@ type GoRun struct {
 	safeBuffer *SafeBuffer  // Thread-safe buffer for Logger
 }
 
-func New(c *GoRunConfig) *GoRun {
+func New(c *Config) *GoRun {
 	var buffer *SafeBuffer
 	if c.Logger != nil {
 		// Create SafeBuffer that forwards to the original logger
@@ -33,12 +34,12 @@ func New(c *GoRunConfig) *GoRun {
 	}
 
 	return &GoRun{
-		GoRunConfig: c,
-		Cmd:         &exec.Cmd{},
-		isRunning:   false,
-		hasWaited:   false,
-		mutex:       sync.RWMutex{},
-		safeBuffer:  buffer,
+		Config:     c,
+		Cmd:        &exec.Cmd{},
+		isRunning:  false,
+		hasWaited:  false,
+		mutex:      sync.RWMutex{},
+		safeBuffer: buffer,
 	}
 }
 

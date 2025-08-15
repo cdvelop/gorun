@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-    config := &gorun.GoRunConfig{
+    config := &gorun.Config{
         ExecProgramPath: "your_program",
         RunArguments:    func() []string { return []string{"--flag"} },
         ExitChan:        make(chan bool),
@@ -49,7 +49,7 @@ func main() {
 
 ### API
 
-#### type GoRunConfig
+#### type Config
 
 Configuration for running an external program.
 
@@ -58,8 +58,9 @@ Configuration for running an external program.
 - `ExitChan chan bool`: Channel to signal exit.
 - `Logger io.Writer`: Where to write program output.
 - `KillAllOnStop bool`: If true, kills all instances of the executable when stopping.
+ - `WorkingDir string`: Optional working directory to set for the spawned process. Useful when the executable expects to run from a specific folder (for example a web server that serves `./public`). If empty, the process inherits the parent's working directory.
 
-#### func New(config *GoRunConfig) *GoRun
+#### func New(config *Config) *GoRun
 
 Creates a new runner instance.
 
@@ -79,6 +80,10 @@ Stops the running program and optionally kills all instances of the same executa
 
 Kills all running processes that match the given executable name. This is useful for cleanup when multiple instances might be running. Works cross-platform (Linux, Windows, macOS).
 
+#### func (g *GoRun) GetOutput() string
+
+Returns the captured output (stdout + stderr) from the running process in a thread-safe way. Useful for tests and debugging.
+
 ### New Cleanup Features
 
 Starting from this version, gorun includes enhanced cleanup capabilities to handle scenarios where multiple instances of the same program might be running:
@@ -88,7 +93,7 @@ Starting from this version, gorun includes enhanced cleanup capabilities to hand
 Set `KillAllOnStop: true` in your config to automatically kill all instances:
 
 ```go
-config := &gorun.GoRunConfig{
+config := &gorun.Config{
     ExecProgramPath: "./my-server",
     RunArguments:    func() []string { return []string{"--port", "8080"} },
     ExitChan:        make(chan bool),
@@ -124,6 +129,40 @@ This is particularly useful for:
 ---
 
 For more details, see the GoDoc or the source
+
+## WorkingDir notes
+
+Some programs rely on relative paths (for example web servers that serve `./public`). Use the `WorkingDir` field in `Config` to ensure the spawned process runs with the expected current directory. Example:
+
+```go
+config := &gorun.Config{
+    ExecProgramPath: "./my-server",
+    WorkingDir:      "/home/user/project/pwa",
+    ExitChan:        make(chan bool),
+    Logger:          os.Stdout,
+}
+
+runner := gorun.New(config)
+_ = runner.RunProgram()
+```
+
+## Testing
+
+Run the gorun tests locally with:
+
+```bash
+cd gorun
+go test ./... -v
+```
+
+Or run a single test (example):
+
+```bash
+cd gorun
+go test -run TestWorkingDir -v
+```
+
+These tests exercise WorkingDir handling and cleanup behaviors.
 
 
 

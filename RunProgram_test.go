@@ -19,7 +19,7 @@ func TestRunProgram_Basic(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -83,7 +83,7 @@ func main() {
 	buf := &bytes.Buffer{}
 
 	testArgs := []string{"test1", "test2", "test3"}
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return testArgs },
 		ExitChan:        exitChan,
@@ -116,7 +116,7 @@ func TestRunProgram_InvalidExecutable(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "/nonexistent/path/program",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -145,7 +145,7 @@ func TestRunProgram_StopPrevious(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -189,7 +189,7 @@ func TestRunProgram_ExitChannel(t *testing.T) {
 	exitChan := make(chan bool, 1)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -223,7 +223,7 @@ func TestRunProgram_EmptyPath(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -274,7 +274,7 @@ func main() {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,

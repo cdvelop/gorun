@@ -55,7 +55,7 @@ func TestNew(t *testing.T) {
 	exitChan := make(chan bool)
 	buf, logger := createTestLogger()
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -68,8 +68,8 @@ func TestNew(t *testing.T) {
 		t.Fatal("New() returned nil")
 	}
 
-	if gr.GoRunConfig != config {
-		t.Error("GoRunConfig not set correctly")
+	if gr.Config != config {
+		t.Error("Config not set correctly")
 	}
 
 	if gr.IsRunning() {
@@ -87,7 +87,7 @@ func TestRunProgram_Success(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -134,7 +134,7 @@ func TestRunProgram_AlreadyRunning(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -174,7 +174,7 @@ func TestStopProgram_NotRunning(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "nonexistent",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -194,7 +194,7 @@ func TestRunProgram_NonexistentFile(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: "nonexistent_program",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -221,7 +221,7 @@ func TestConcurrentAccess(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -282,7 +282,7 @@ func TestRunArguments(t *testing.T) {
 	buf := &bytes.Buffer{}
 
 	testArgs := []string{"arg1", "arg2", "test"}
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return testArgs },
 		ExitChan:        exitChan,
@@ -321,7 +321,7 @@ func TestSignalHandling(t *testing.T) {
 	exitChan := make(chan bool)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
@@ -365,7 +365,7 @@ func TestExitChanIntegration(t *testing.T) {
 	exitChan := make(chan bool, 1)
 	buf := &bytes.Buffer{}
 
-	config := &GoRunConfig{
+	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
