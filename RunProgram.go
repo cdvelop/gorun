@@ -30,6 +30,7 @@ func (h *GoRun) RunProgram() error {
 	}
 
 	h.Cmd = exec.Command(h.ExecProgramPath, runArgs...)
+	h.hasWaited = false // Reset wait flag for new process
 
 	stderr, err := h.Cmd.StderrPipe()
 	if err != nil {
@@ -72,6 +73,7 @@ func (h *GoRun) RunProgram() error {
 		err := currentCmd.Wait()
 		h.mutex.Lock()
 		h.isRunning = false
+		h.hasWaited = true // Mark that Wait() has been called
 		h.mutex.Unlock()
 
 		if err != nil {

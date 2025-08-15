@@ -18,6 +18,7 @@ type GoRun struct {
 	*GoRunConfig
 	Cmd        *exec.Cmd
 	isRunning  bool
+	hasWaited  bool         // Track if Wait() has been called
 	mutex      sync.RWMutex // Protect concurrent access to running state
 	safeBuffer *SafeBuffer  // Thread-safe buffer for Logger
 }
@@ -35,6 +36,7 @@ func New(c *GoRunConfig) *GoRun {
 		GoRunConfig: c,
 		Cmd:         &exec.Cmd{},
 		isRunning:   false,
+		hasWaited:   false,
 		mutex:       sync.RWMutex{},
 		safeBuffer:  buffer,
 	}
