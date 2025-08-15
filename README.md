@@ -56,7 +56,8 @@ Configuration for running an external program.
 - `ExecProgramPath string`: Path to the executable.
 - `RunArguments func() []string`: Function returning the arguments to pass.
 - `ExitChan chan bool`: Channel to signal exit.
-- `Writer io.Writer`: Where to write program output.
+- `Logger io.Writer`: Where to write program output.
+- `KillAllOnStop bool`: If true, kills all instances of the executable when stopping.
 
 #### func New(config *GoRunConfig) *GoRun
 
@@ -64,11 +65,61 @@ Creates a new runner instance.
 
 #### func (g *GoRun) RunProgram() error
 
-Runs the configured program and captures its output.
+Runs the configured program and captures its output. If a program is already running, it stops the previous one first. If `KillAllOnStop` is enabled, it will also kill all other instances of the same executable.
 
 #### func (g *GoRun) StopProgram() error
 
-Stops the running program gracefully.
+Stops the running program gracefully. If `KillAllOnStop` is enabled, it will also kill all other instances of the same executable.
+
+#### func (g *GoRun) StopProgramAndCleanup(killAll bool) error
+
+Stops the running program and optionally kills all instances of the same executable by name.
+
+#### func KillAllByName(executableName string) error
+
+Kills all running processes that match the given executable name. This is useful for cleanup when multiple instances might be running. Works cross-platform (Linux, Windows, macOS).
+
+### New Cleanup Features
+
+Starting from this version, gorun includes enhanced cleanup capabilities to handle scenarios where multiple instances of the same program might be running:
+
+#### Automatic Cleanup
+
+Set `KillAllOnStop: true` in your config to automatically kill all instances:
+
+```go
+config := &gorun.GoRunConfig{
+    ExecProgramPath: "./my-server",
+    RunArguments:    func() []string { return []string{"--port", "8080"} },
+    ExitChan:        make(chan bool),
+    Logger:          os.Stdout,
+    KillAllOnStop:   true, // Kill ALL instances when stopping
+}
+```
+
+#### Manual Cleanup
+
+For explicit control over cleanup:
+
+```go
+// Kill all instances manually
+if err := gorun.KillAllByName("my-server"); err != nil {
+    log.Printf("Cleanup failed: %v", err)
+}
+
+// Or use the method with explicit control
+if err := runner.StopProgramAndCleanup(true); err != nil {
+    log.Printf("Stop and cleanup failed: %v", err)
+}
+```
+
+#### Use Cases
+
+This is particularly useful for:
+- **Development servers**: Ensure no orphaned processes when restarting
+- **Test cleanup**: Prevent test pollution from previous runs  
+- **CI/CD**: Ensure clean deployment environments
+- **Multiple instances**: When you need to ensure only one instance runs
 
 ---
 

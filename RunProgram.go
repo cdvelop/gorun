@@ -8,6 +8,20 @@ import (
 )
 
 func (h *GoRun) RunProgram() error {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
+	// Always stop any previous running program first
+	// Use cleanup if KillAllOnStop is enabled
+	if h.KillAllOnStop {
+		if err := h.stopProgramAndCleanupUnsafe(true); err != nil {
+			fmt.Fprintf(h.Logger, "Warning: Error stopping previous programs: %v\n", err)
+		}
+	} else {
+		if err := h.stopProgramUnsafe(); err != nil {
+			fmt.Fprintf(h.Logger, "Warning: Error stopping previous program: %v\n", err)
+		}
+	}
 
 	runArgs := []string{}
 
@@ -31,7 +45,7 @@ func (h *GoRun) RunProgram() error {
 	if err != nil {
 		return err
 	}
-	h.IsRunning = true
+	h.isRunning = true
 
 	var once sync.Once
 	done := make(chan struct{})
@@ -52,6 +66,10 @@ func (h *GoRun) RunProgram() error {
 
 	go func() {
 		err := h.Cmd.Wait()
+		h.mutex.Lock()
+		h.isRunning = false
+		h.mutex.Unlock()
+
 		if err != nil {
 			fmt.Fprintf(h.Logger, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
 		} else {

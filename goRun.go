@@ -3,6 +3,7 @@ package gorun
 import (
 	"io"
 	"os/exec"
+	"sync"
 )
 
 type GoRunConfig struct {
@@ -10,18 +11,21 @@ type GoRunConfig struct {
 	RunArguments    func() []string
 	ExitChan        chan bool
 	Logger          io.Writer
+	KillAllOnStop   bool // If true, kills all instances of the executable when stopping
 }
 
 type GoRun struct {
 	*GoRunConfig
 	Cmd       *exec.Cmd
-	IsRunning bool
+	isRunning bool
+	mutex     sync.RWMutex // Protect concurrent access to running state
 }
 
 func New(c *GoRunConfig) *GoRun {
 	return &GoRun{
 		GoRunConfig: c,
 		Cmd:         &exec.Cmd{},
-		IsRunning:   false,
+		isRunning:   false,
+		mutex:       sync.RWMutex{},
 	}
 }
