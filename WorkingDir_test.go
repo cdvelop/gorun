@@ -41,7 +41,7 @@ func TestWorkingDir(t *testing.T) {
 		gorun.StopProgram()
 
 		// Check if the output contains the expected working directory (thread-safe)
-		outputStr := gorun.GetOutput()
+		outputStr := gorun.getOutput()
 		if !strings.Contains(outputStr, subDir) {
 			t.Errorf("Expected working directory %s in output, got: %s", subDir, outputStr)
 		}
@@ -80,7 +80,7 @@ func TestWorkingDirNotSet(t *testing.T) {
 		}
 
 		// Check if the output contains the current working directory (thread-safe)
-		outputStr := gorun.GetOutput()
+		outputStr := gorun.getOutput()
 		if !strings.Contains(outputStr, currentDir) {
 			t.Errorf("Expected current directory %s in output, got: %s", currentDir, outputStr)
 		}

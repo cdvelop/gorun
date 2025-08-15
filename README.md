@@ -9,158 +9,48 @@ gorun is a Go package that provides a simple interface to run, monitor, and stop
 
 ### Installation
 
+# gorun
+
+Small helper to run/monitor/stop external programs from Go.
+
+Usage (essential)
+
+Install:
+
 ```sh
 go get github.com/cdvelop/gorun
 ```
 
-### Example
+Minimal example (use `WorkingDir` when child needs a specific CWD):
 
 ```go
-package main
-
-import (
-    "os"
-    "github.com/cdvelop/gorun"
-)
-
-func main() {
-    config := &gorun.Config{
-        ExecProgramPath: "your_program",
-        RunArguments:    func() []string { return []string{"--flag"} },
-        ExitChan:        make(chan bool),
-        Logger:          os.Stdout,
-    }
-
-    runner := gorun.New(config)
-
-    // Start the program
-    if err := runner.RunProgram(); err != nil {
-        panic(err)
-    }
-
-    // ... do other work ...
-
-    // Stop the program gracefully
-    if err := runner.StopProgram(); err != nil {
-        panic(err)
-    }
-}
-```
-
-### API
-
-#### type Config
-
-Configuration for running an external program.
-
-- `ExecProgramPath string`: Path to the executable.
-- `RunArguments func() []string`: Function returning the arguments to pass.
-- `ExitChan chan bool`: Channel to signal exit.
-- `Logger io.Writer`: Where to write program output.
-- `KillAllOnStop bool`: If true, kills all instances of the executable when stopping.
- - `WorkingDir string`: Optional working directory to set for the spawned process. Useful when the executable expects to run from a specific folder (for example a web server that serves `./public`). If empty, the process inherits the parent's working directory.
-
-#### func New(config *Config) *GoRun
-
-Creates a new runner instance.
-
-#### func (g *GoRun) RunProgram() error
-
-Runs the configured program and captures its output. If a program is already running, it stops the previous one first. If `KillAllOnStop` is enabled, it will also kill all other instances of the same executable.
-
-#### func (g *GoRun) StopProgram() error
-
-Stops the running program gracefully. If `KillAllOnStop` is enabled, it will also kill all other instances of the same executable.
-
-#### func (g *GoRun) StopProgramAndCleanup(killAll bool) error
-
-Stops the running program and optionally kills all instances of the same executable by name.
-
-#### func KillAllByName(executableName string) error
-
-Kills all running processes that match the given executable name. This is useful for cleanup when multiple instances might be running. Works cross-platform (Linux, Windows, macOS).
-
-#### func (g *GoRun) GetOutput() string
-
-Returns the captured output (stdout + stderr) from the running process in a thread-safe way. Useful for tests and debugging.
-
-### New Cleanup Features
-
-Starting from this version, gorun includes enhanced cleanup capabilities to handle scenarios where multiple instances of the same program might be running:
-
-#### Automatic Cleanup
-
-Set `KillAllOnStop: true` in your config to automatically kill all instances:
-
-```go
-config := &gorun.Config{
+cfg := &gorun.Config{
     ExecProgramPath: "./my-server",
-    RunArguments:    func() []string { return []string{"--port", "8080"} },
+    WorkingDir:      "/abs/path/to/project/pwa", // optional
     ExitChan:        make(chan bool),
-    Logger:          os.Stdout,
-    KillAllOnStop:   true, // Kill ALL instances when stopping
 }
+r := gorun.New(cfg)
+_ = r.RunProgram()
+// ... stop when needed
+_ = r.StopProgram()
+// By default gorun captures output internally. For programmatic access in
+// tests prefer not to rely on exported getters; pass a `Logger` (io.Writer)
+// to receive forwarded output, or inspect the internal buffer from tests.
 ```
 
-#### Manual Cleanup
+Notes
+- `WorkingDir`: optional; if empty child inherits parent's CWD. Prefer absolute paths.
+- `Logger`: optional io.Writer. gorun captures output internally; use `GetOutput()` in tests or when you need programmatic access.
 
-For explicit control over cleanup:
-
-```go
-// Kill all instances manually
-if err := gorun.KillAllByName("my-server"); err != nil {
-    log.Printf("Cleanup failed: %v", err)
-}
-
-// Or use the method with explicit control
-if err := runner.StopProgramAndCleanup(true); err != nil {
-    log.Printf("Stop and cleanup failed: %v", err)
-}
-```
-
-#### Use Cases
-
-This is particularly useful for:
-- **Development servers**: Ensure no orphaned processes when restarting
-- **Test cleanup**: Prevent test pollution from previous runs  
-- **CI/CD**: Ensure clean deployment environments
-- **Multiple instances**: When you need to ensure only one instance runs
-
----
-
-For more details, see the GoDoc or the source
-
-## WorkingDir notes
-
-Some programs rely on relative paths (for example web servers that serve `./public`). Use the `WorkingDir` field in `Config` to ensure the spawned process runs with the expected current directory. Example:
-
-```go
-config := &gorun.Config{
-    ExecProgramPath: "./my-server",
-    WorkingDir:      "/home/user/project/pwa",
-    ExitChan:        make(chan bool),
-    Logger:          os.Stdout,
-}
-
-runner := gorun.New(config)
-_ = runner.RunProgram()
-```
-
-## Testing
-
-Run the gorun tests locally with:
+Tests
 
 ```bash
 cd gorun
 go test ./... -v
+go test ./... -race -v  # run with race detector
 ```
 
-Or run a single test (example):
-
-```bash
-cd gorun
-go test -run TestWorkingDir -v
-```
+That's it — small, focused, non-redundant docs. If you want, I can add one short `goserver` example showing how to set `WorkingDir` from an `AutoConfig`.
 
 These tests exercise WorkingDir handling and cleanup behaviors.
 

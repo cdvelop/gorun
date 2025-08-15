@@ -7,12 +7,12 @@ import (
 )
 
 type Config struct {
-	ExecProgramPath string // eg: "server/main.exe"
-	RunArguments    func() []string
+	ExecProgramPath string          // eg: "server/main.exe"
+	RunArguments    func() []string // eg: []string{"dev"}
 	ExitChan        chan bool
 	Logger          io.Writer
 	KillAllOnStop   bool   // If true, kills all instances of the executable when stopping
-	WorkingDir      string // Working directory for the process (optional)
+	WorkingDir      string // eg: "/path/to/working/dir"
 }
 
 type GoRun struct {
@@ -43,7 +43,7 @@ func New(c *Config) *GoRun {
 	}
 }
 
-// GetOutput returns the captured output in a thread-safe manner
-func (h *GoRun) GetOutput() string {
+// getOutput returns the captured output in a thread-safe manner (unexported)
+func (h *GoRun) getOutput() string {
 	return h.safeBuffer.String()
 }
