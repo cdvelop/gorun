@@ -49,6 +49,10 @@ func (h *GoRun) RunProgram() error {
 
 	err = h.Cmd.Start()
 	if err != nil {
+		// Clean up the failed command to prevent issues in subsequent operations
+		h.Cmd = nil
+		h.isRunning = false
+		h.hasWaited = false
 		return err
 	}
 

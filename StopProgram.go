@@ -21,7 +21,7 @@ func (h *GoRun) StopProgram() error {
 // stopProgramUnsafe stops the program without acquiring the mutex
 // Should only be called when mutex is already held
 func (h *GoRun) stopProgramUnsafe() error {
-	if !h.isRunning || h.Cmd.Process == nil {
+	if !h.isRunning || h.Cmd == nil || h.Cmd.Process == nil {
 		h.isRunning = false
 		return nil
 	}
