@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"strings"
 	"sync"
 )
 
@@ -95,10 +96,17 @@ func (h *GoRun) RunProgram() error {
 		h.mutex.Unlock()
 
 		if err != nil {
-			fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
-		} else {
-			// fmt.Fprintf(h.safeBuffer, "App: %v closed successfully\n", h.ExecProgramPath)
+			// Check if the error is due to a signal termination (normal shutdown)
+			errMsg := err.Error()
+			if !strings.Contains(errMsg, "signal: terminated") &&
+				!strings.Contains(errMsg, "signal: killed") &&
+				!strings.Contains(errMsg, "signal: interrupt") {
+				// This is an actual error, not a normal signal termination
+				fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
+			}
+			// No log for normal signal terminations
 		}
+		// No log for clean exits either
 		once.Do(func() { close(done) })
 	}()
 
