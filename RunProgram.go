@@ -32,6 +32,10 @@ func (h *GoRun) RunProgram() error {
 	h.Cmd = exec.Command(h.ExecProgramPath, runArgs...)
 	h.hasWaited = false // Reset wait flag for new process
 
+	// DEBUG: Log the exact run command being executed
+	// fmt.Fprintf(h.safeBuffer, "[GORUN DEBUG] Starting: %s %v\n", h.ExecProgramPath, runArgs)
+	// fmt.Fprintf(h.safeBuffer, "[GORUN DEBUG] Working dir: %s\n", h.WorkingDir)
+
 	// Set working directory if specified
 	if h.WorkingDir != "" {
 		h.Cmd.Dir = h.WorkingDir
@@ -49,12 +53,17 @@ func (h *GoRun) RunProgram() error {
 
 	err = h.Cmd.Start()
 	if err != nil {
+		// DEBUG: Log start failure details
+		// fmt.Fprintf(h.safeBuffer, "[GORUN DEBUG] Failed to start process: %v\n", err)
 		// Clean up the failed command to prevent issues in subsequent operations
 		h.Cmd = nil
 		h.isRunning = false
 		h.hasWaited = false
 		return err
 	}
+
+	// DEBUG: Log successful start
+	// fmt.Fprintf(h.safeBuffer, "[GORUN DEBUG] Process started successfully with PID: %d\n", h.Cmd.Process.Pid)
 
 	h.isRunning = true
 
@@ -88,7 +97,7 @@ func (h *GoRun) RunProgram() error {
 		if err != nil {
 			fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
 		} else {
-			fmt.Fprintf(h.safeBuffer, "App: %v closed successfully\n", h.ExecProgramPath)
+			// fmt.Fprintf(h.safeBuffer, "App: %v closed successfully\n", h.ExecProgramPath)
 		}
 		once.Do(func() { close(done) })
 	}()
