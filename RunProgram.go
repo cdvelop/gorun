@@ -100,11 +100,12 @@ func (h *GoRun) RunProgram() error {
 			errMsg := err.Error()
 			if !strings.Contains(errMsg, "signal: terminated") &&
 				!strings.Contains(errMsg, "signal: killed") &&
-				!strings.Contains(errMsg, "signal: interrupt") {
+				!strings.Contains(errMsg, "signal: interrupt") &&
+				!strings.Contains(errMsg, "waitid: no child processes") {
 				// This is an actual error, not a normal signal termination
 				fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
 			}
-			// No log for normal signal terminations
+			// No log for normal signal terminations or known benign waitid error
 		}
 		// No log for clean exits either
 		once.Do(func() { close(done) })
