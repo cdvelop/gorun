@@ -56,3 +56,4 @@ These tests exercise WorkingDir handling and cleanup behaviors.
 
 
 
+## [Contributing](https://github.com/cdvelop/cdvelop/blob/main/CONTRIBUTING.md)
