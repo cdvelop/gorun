@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"bytes"
 	"os"
 	"strings"
 	"testing"
@@ -14,13 +13,13 @@ func TestKillAllOnStop_Disabled(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 		KillAllOnStop:   false, // Disabled
 	}
 
@@ -51,13 +50,13 @@ func TestKillAllOnStop_Enabled(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 		KillAllOnStop:   true, // Enabled
 	}
 
@@ -88,13 +87,13 @@ func TestStopProgramAndCleanup(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 		KillAllOnStop:   false,
 	}
 
@@ -125,13 +124,13 @@ func TestStopProgramAndCleanup_NoCleanup(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 		KillAllOnStop:   false,
 	}
 

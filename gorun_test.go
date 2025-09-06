@@ -2,6 +2,7 @@ package gorun
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -44,7 +45,7 @@ func createTestLogger() (*bytes.Buffer, func(...any)) {
 			if i > 0 {
 				buf.WriteString(" ")
 			}
-			buf.WriteString(strings.TrimSpace(string([]byte(arg.(string)))))
+			buf.WriteString(fmt.Sprintf("%v", arg))
 		}
 		buf.WriteString("\n")
 	}
@@ -59,7 +60,7 @@ func TestNew(t *testing.T) {
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -76,7 +77,7 @@ func TestNew(t *testing.T) {
 		t.Error("New instance should not be running")
 	}
 
-	_ = logger // Use logger to avoid unused variable error
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_Success(t *testing.T) {
@@ -85,13 +86,13 @@ func TestRunProgram_Success(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -124,6 +125,8 @@ func TestRunProgram_Success(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after stop")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_AlreadyRunning(t *testing.T) {
@@ -132,13 +135,13 @@ func TestRunProgram_AlreadyRunning(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -168,17 +171,19 @@ func TestRunProgram_AlreadyRunning(t *testing.T) {
 	if err != nil && !strings.Contains(err.Error(), "no child processes") {
 		t.Errorf("StopProgram() failed with unexpected error: %v", err)
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_NotRunning(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "nonexistent",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -188,17 +193,19 @@ func TestStopProgram_NotRunning(t *testing.T) {
 	if err != nil {
 		t.Errorf("StopProgram() should not fail when not running: %v", err)
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_NonexistentFile(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "nonexistent_program",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -211,6 +218,8 @@ func TestRunProgram_NonexistentFile(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running when file doesn't exist")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestConcurrentAccess(t *testing.T) {
@@ -219,13 +228,13 @@ func TestConcurrentAccess(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -271,6 +280,8 @@ func TestConcurrentAccess(t *testing.T) {
 			t.Errorf("Concurrent access error: %v", err)
 		}
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunArguments(t *testing.T) {
@@ -279,14 +290,14 @@ func TestRunArguments(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	testArgs := []string{"arg1", "arg2", "test"}
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return testArgs },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -310,6 +321,8 @@ func TestRunArguments(t *testing.T) {
 
 	// Clean up
 	gr.StopProgram()
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestSignalHandling(t *testing.T) {
@@ -319,13 +332,13 @@ func TestSignalHandling(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -355,6 +368,8 @@ func TestSignalHandling(t *testing.T) {
 	if !signalReceived && !programTerminated {
 		t.Errorf("Program should have been terminated gracefully or forcefully. Output: %s", output)
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestExitChanIntegration(t *testing.T) {
@@ -363,13 +378,13 @@ func TestExitChanIntegration(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool, 1)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -395,4 +410,6 @@ func TestExitChanIntegration(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should have stopped after exit signal")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }

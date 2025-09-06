@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"bytes"
 	"os"
 	"strings"
 	"testing"
@@ -14,13 +13,13 @@ func TestStopProgram_Basic(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -47,17 +46,19 @@ func TestStopProgram_Basic(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after StopProgram()")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_WhenNotRunning(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -71,6 +72,8 @@ func TestStopProgram_WhenNotRunning(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_GracefulShutdown(t *testing.T) {
@@ -79,13 +82,13 @@ func TestStopProgram_GracefulShutdown(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -119,6 +122,8 @@ func TestStopProgram_GracefulShutdown(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after shutdown")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_ForcedTermination(t *testing.T) {
@@ -127,13 +132,13 @@ func TestStopProgram_ForcedTermination(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -165,6 +170,8 @@ func TestStopProgram_ForcedTermination(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after forced termination")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_MultipleCalls(t *testing.T) {
@@ -173,13 +180,13 @@ func TestStopProgram_MultipleCalls(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -214,6 +221,8 @@ func TestStopProgram_MultipleCalls(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after multiple StopProgram calls")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestStopProgram_ConcurrentCalls(t *testing.T) {
@@ -222,13 +231,13 @@ func TestStopProgram_ConcurrentCalls(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -274,4 +283,6 @@ func TestStopProgram_ConcurrentCalls(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after concurrent StopProgram calls")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }

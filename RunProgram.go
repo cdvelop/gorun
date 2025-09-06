@@ -16,11 +16,11 @@ func (h *GoRun) RunProgram() error {
 	// Use cleanup if KillAllOnStop is enabled
 	if h.KillAllOnStop {
 		if err := h.stopProgramAndCleanupUnsafe(true); err != nil {
-			fmt.Fprintf(h.safeBuffer, "Warning: Error stopping previous programs: %v\n", err)
+			h.safeBuffer.Write([]byte(fmt.Sprintf("Warning: Error stopping previous programs: %v\n", err)))
 		}
 	} else {
 		if err := h.stopProgramUnsafe(); err != nil {
-			fmt.Fprintf(h.safeBuffer, "Warning: Error stopping previous program: %v\n", err)
+			h.safeBuffer.Write([]byte(fmt.Sprintf("Warning: Error stopping previous program: %v\n", err)))
 		}
 	}
 
@@ -103,7 +103,7 @@ func (h *GoRun) RunProgram() error {
 				!strings.Contains(errMsg, "signal: interrupt") &&
 				!strings.Contains(errMsg, "waitid: no child processes") {
 				// This is an actual error, not a normal signal termination
-				fmt.Fprintf(h.safeBuffer, "App: %v closed with error: %v\n", h.ExecProgramPath, err)
+				h.safeBuffer.Write([]byte(fmt.Sprintf("App: %v closed with error: %v\n", h.ExecProgramPath, err)))
 			}
 			// No log for normal signal terminations or known benign waitid error
 		}

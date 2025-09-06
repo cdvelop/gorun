@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,13 +11,13 @@ import (
 
 func TestIsRunning_InitialState(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -26,6 +25,8 @@ func TestIsRunning_InitialState(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("New GoRun instance should not be running initially")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestIsRunning_AfterStart(t *testing.T) {
@@ -34,13 +35,13 @@ func TestIsRunning_AfterStart(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -58,6 +59,8 @@ func TestIsRunning_AfterStart(t *testing.T) {
 
 	// Clean up
 	gr.StopProgram()
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestIsRunning_AfterStop(t *testing.T) {
@@ -66,13 +69,13 @@ func TestIsRunning_AfterStop(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -101,6 +104,8 @@ func TestIsRunning_AfterStop(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running after StopProgram()")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestIsRunning_AfterProgramExit(t *testing.T) {
@@ -132,13 +137,13 @@ func main() {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)

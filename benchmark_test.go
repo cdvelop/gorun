@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,16 +16,18 @@ func BenchmarkRunStopProgram(b *testing.B) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
+
+	_ = buf // Use buf to avoid unused variable error
 
 	b.ResetTimer()
 
@@ -55,13 +56,13 @@ func BenchmarkIsRunning(b *testing.B) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -73,6 +74,8 @@ func BenchmarkIsRunning(b *testing.B) {
 	}
 	defer gr.StopProgram()
 
+	_ = buf // Use buf to avoid unused variable error
+
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -82,13 +85,13 @@ func BenchmarkIsRunning(b *testing.B) {
 
 func BenchmarkNew(b *testing.B) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "test",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	b.ResetTimer()
@@ -96,6 +99,8 @@ func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = New(config)
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 // buildTestProgramBench builds a test program for benchmarks

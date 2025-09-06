@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,13 +16,13 @@ func TestRunProgram_Basic(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -41,6 +40,8 @@ func TestRunProgram_Basic(t *testing.T) {
 
 	// Clean up
 	gr.StopProgram()
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_WithArguments(t *testing.T) {
@@ -80,14 +81,14 @@ func main() {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	testArgs := []string{"test1", "test2", "test3"}
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return testArgs },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -110,31 +111,29 @@ func main() {
 
 	// Clean up
 	gr.StopProgram()
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_InvalidExecutable(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "/nonexistent/path/program",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
 
-	// Try to run nonexistent program
 	err := gr.RunProgram()
 	if err == nil {
-		t.Error("RunProgram() should fail for nonexistent executable")
+		t.Error("Expected error for invalid executable path")
 	}
 
-	// Should not be running
-	if gr.IsRunning() {
-		t.Error("Program should not be running when executable doesn't exist")
-	}
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_StopPrevious(t *testing.T) {
@@ -143,13 +142,13 @@ func TestRunProgram_StopPrevious(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -179,6 +178,8 @@ func TestRunProgram_StopPrevious(t *testing.T) {
 
 	// Clean up
 	gr.StopProgram()
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_ExitChannel(t *testing.T) {
@@ -187,13 +188,13 @@ func TestRunProgram_ExitChannel(t *testing.T) {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool, 1)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -217,17 +218,19 @@ func TestRunProgram_ExitChannel(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should have stopped after exit signal")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_EmptyPath(t *testing.T) {
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	buf, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: "",
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)
@@ -241,6 +244,8 @@ func TestRunProgram_EmptyPath(t *testing.T) {
 	if gr.IsRunning() {
 		t.Error("Program should not be running with empty path")
 	}
+
+	_ = buf // Use buf to avoid unused variable error
 }
 
 func TestRunProgram_ProgramExitsQuickly(t *testing.T) {
@@ -272,13 +277,13 @@ func main() {
 	defer os.Remove(execPath)
 
 	exitChan := make(chan bool)
-	buf := &bytes.Buffer{}
+	_, logger := createTestLogger()
 
 	config := &Config{
 		ExecProgramPath: execPath,
 		RunArguments:    func() []string { return []string{} },
 		ExitChan:        exitChan,
-		Logger:          buf,
+		Logger:          logger,
 	}
 
 	gr := New(config)

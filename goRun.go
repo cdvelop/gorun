@@ -1,7 +1,6 @@
 package gorun
 
 import (
-	"io"
 	"os/exec"
 	"sync"
 )
@@ -10,7 +9,7 @@ type Config struct {
 	ExecProgramPath string          // eg: "server/main.exe"
 	RunArguments    func() []string // eg: []string{"dev"}
 	ExitChan        chan bool
-	Logger          io.Writer
+	Logger          func(message ...any)
 	KillAllOnStop   bool   // If true, kills all instances of the executable when stopping
 	WorkingDir      string // eg: "/path/to/working/dir"
 }
@@ -27,7 +26,7 @@ type GoRun struct {
 func New(c *Config) *GoRun {
 	var buffer *SafeBuffer
 	if c.Logger != nil {
-		// Create SafeBuffer that forwards to the original logger
+		// Create SafeBuffer that forwards to the function logger
 		buffer = NewSafeBufferWithForward(c.Logger)
 	} else {
 		buffer = NewSafeBuffer()
